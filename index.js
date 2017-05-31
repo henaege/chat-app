@@ -5,30 +5,43 @@ var fs = require("fs");
 var socketio = require("socket.io");
 var userList = [];
 var server = http.createServer((req, res)=> {
-console.log("Someone connected via http.")
-    // if (req.url == '/'){
-        fs.readFile('index.html', 'utf-8', (error, data)=> {
-        // console.log(error);
-        // console.log(data);
-            if (error) {
-                res.writeHead(500, {'content-type':'text/html'});
-                res.end('Internal server error');
-            } else{
-                res.writeHead(200,{'content-type':'text/html'});
-                res.end(data);
-            }
-        });
-    // } else if (req.url == './style.css') {
-    //     fs.readFile('./style.css', 'utf-8', (error, data)=> {
-    //         if (error) {
-    //             res.writeHead(500, {'content-type':'text/html'});
-    //             res.end('Internal server error');
-    //         }else {
-    //             res.writeHead(200, {'content-type':'text/css'});
-    //             res.end(data);
-    //         }
-    //     });
-    // }
+    console.log("Someone connected via http.")
+        if(req.url == '/'){
+		fs.readFile('index.html', 'utf-8',(error,data)=>{
+			// console.log(error);
+			// console.log(data);
+			if(error){
+				res.writeHead(500,{'content-type':'text/html'});
+				res.end('Internal Server Error');
+			}else{
+				res.writeHead(200,{'content-type':'text/html'});
+				res.end(data);
+			}
+		});
+	}else if(req.url == '/style.css'){
+		fs.readFile('style.css', 'utf-8',(error,data)=>{
+			if(error){
+				res.writeHead(500,{'content-type':'text/html'});
+				res.end('Internal Server Error');
+			}else{
+				res.writeHead(200,{'content-type':'text/css'});
+				res.end(data);
+			}			
+		});
+	}else if(req.url == '/config.js'){
+		fs.readFile('config.js', 'utf-8',(error,data)=>{
+			if(error){
+				res.writeHead(500,{'content-type':'text/html'});
+				res.end('Internal Server Error');
+			}else{
+				res.writeHead(200,{'content-type':'application/javascript'});
+				res.end(data);
+			}			
+		});
+	}else{
+		res.writeHead(404,{'content-type':'text/html'});
+		res.end('<h1>This page does not exist</h1>');	
+	}
 });
 
 var io = socketio.listen(server);
@@ -38,7 +51,10 @@ io.sockets.on('connect',(socket)=> {
 
     socket.on('nameToServer', (name)=> {
         console.log(name + " just joined")
-        userList.push(name);
+        var clientInfo = new Object();
+        clientInfo.name = name;
+        clientInfo.clientID = socket.id;
+        userList.push(clientInfo.name)
         io.sockets.emit('newUser', name, userList);
         console.log(userList);
 
@@ -51,6 +67,16 @@ io.sockets.on('connect',(socket)=> {
     socket.on('messageToServer',(messageObj)=> {
         io.sockets.emit('messageToClient', messageObj.name + ' says: ' + messageObj.newMessage);
         
+    })
+    socket.on('disconnect', (name)=> {
+        console.log(`${name} disconnected`)
+        // for (let i=0; i < userList.length; i++){}
+        var removed = userList.indexOf(name);
+        if (removed > -1) {
+            userList.splice(removed, 1);
+        }
+        console.log(userList);
+        io.sockets.emit('disconnected', name, userList)
     })
 });
 
