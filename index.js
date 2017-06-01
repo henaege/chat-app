@@ -50,13 +50,17 @@ io.sockets.on('connect',(socket)=> {
     console.log("someone connected via socket");
 
     socket.on('nameToServer', (name)=> {
-        console.log(name + " just joined")
-        var clientInfo = new Object();
-        clientInfo.name = name;
-        clientInfo.clientID = socket.id;
-        userList.push(clientInfo.name)
-        io.sockets.emit('newUser', name, userList);
+		console.log(name + " just joined")
+        userList.unshift(name)
+        io.sockets.emit('newUser', userList);
         console.log(userList);
+
+		socket.on('disconnect', ()=> {
+			console.log(name + ' disconnected');
+			userList.splice(userList.indexOf(name), 1);
+			io.sockets.emit('newuser', userList)
+			console.log(userList);
+		})
 
 
     });
@@ -70,13 +74,15 @@ io.sockets.on('connect',(socket)=> {
     })
     socket.on('disconnect', (name)=> {
         console.log(`${name} disconnected`)
-        // for (let i=0; i < userList.length; i++){}
+		io.sockets.emit('messageToClient', `${name} has left.`);
+        for (let i=0; i < userList.length; i++){
         var removed = userList.indexOf(name);
         if (removed > -1) {
-            userList.splice(removed, 1);
+            userList.pop(removed);
         }
         console.log(userList);
-        io.sockets.emit('disconnected', name, userList)
+        
+		}
     })
 });
 
