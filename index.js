@@ -43,7 +43,10 @@ var server = http.createServer((req, res)=> {
 		res.end('<h1>This page does not exist</h1>');	
 	}
 });
-
+var getTime = ()=> {
+	var currentTime = (new Date()).toLocaleTimeString();
+	return currentTime;
+}
 var io = socketio.listen(server);
 // handle socket connections.
 io.sockets.on('connect',(socket)=> {
@@ -70,7 +73,8 @@ io.sockets.on('connect',(socket)=> {
     })
 
     socket.on('messageToServer',(messageObj)=> {
-        io.sockets.emit('messageToClient', messageObj.name + ' says: ' + messageObj.newMessage);
+		
+        io.sockets.emit('messageToClient', '(' + getTime() + ') ' + messageObj.name + ' says: ' + messageObj.newMessage);
         
     })
 });

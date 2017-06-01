@@ -40,6 +40,10 @@
             // console.log(io);
             var socketio = io.connect(socketUrl);
 
+            var getTime = ()=> {
+            var currentTime = (new Date()).toLocaleTimeString();
+            return currentTime;
+            }
             
             // Send an event to the server
             socketio.emit('nameToServer', name);
@@ -53,7 +57,7 @@
                 
                 console.log(userList);
                 var messageDiv = document.getElementById('messages');
-                $('#messages').append('<h4>' + userList[0] + ' has joined the chat!</h4>');
+                $('#messages').append('<h4>(' + getTime() + ') ' + userList[0] + ' has joined the chat!</h4>');
                 
             });
 
@@ -64,7 +68,7 @@
                     usersDiv.innerHTML += `<div class="user-list">${userList[i]}<br /></div>`;
                 }
                 var messageDiv = document.getElementById('messages');
-                $('#messages').append('<h4>' + name + ' has left.</h4>');
+                $('#messages').append('<h4>(' + getTime() + ') ' + name + ' has left.</h4>');
             })
 
             $('#submit-message').submit((event)=>{
