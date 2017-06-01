@@ -58,6 +58,7 @@
                 flex: 2 1 auto;
                 height: 50vh;
                 border: solid 1px black;
+                padding: 10px;
                 background-image: linear-gradient(to bottom, coral, teal 100%);
                 overflow: scroll;
             }
