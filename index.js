@@ -52,13 +52,14 @@ io.sockets.on('connect',(socket)=> {
     socket.on('nameToServer', (name)=> {
 		console.log(name + " just joined")
         userList.unshift(name)
-        io.sockets.emit('newUser', userList);
+        io.sockets.emit('newUser', userList,{reason:"left"});
         console.log(userList);
 
 		socket.on('disconnect', ()=> {
 			console.log(name + ' disconnected');
+			console.log('*** ' + userList + ' ***')
 			userList.splice(userList.indexOf(name), 1);
-			io.sockets.emit('newuser', userList)
+			io.sockets.emit('removeUser', userList, name)
 			console.log(userList);
 		})
 
@@ -72,19 +73,8 @@ io.sockets.on('connect',(socket)=> {
         io.sockets.emit('messageToClient', messageObj.name + ' says: ' + messageObj.newMessage);
         
     })
-    socket.on('disconnect', (name)=> {
-        console.log(`${name} disconnected`)
-		io.sockets.emit('messageToClient', `${name} has left.`);
-        for (let i=0; i < userList.length; i++){
-        var removed = userList.indexOf(name);
-        if (removed > -1) {
-            userList.pop(removed);
-        }
-        console.log(userList);
-        
-		}
-    })
 });
+
 
 server.listen(8080);
 console.log("Listening on port 8080...");

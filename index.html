@@ -43,7 +43,7 @@
             
             // Send an event to the server
             socketio.emit('nameToServer', name);
-            socketio.on('newUser',(userList)=> {
+            socketio.on('newUser',(userList,reason)=> {
                 console.log(userList[0] + " just joined!");
                 var usersDiv = document.getElementById('users');
                 usersDiv.innerHTML = '';
@@ -57,9 +57,16 @@
                 
             });
 
-            // $('#send-message').click(()=> {
-            //     socketio.emit('sendMessage');
-            // })
+            socketio.on('removeUser', (userList, name)=> {
+                var usersDiv = document.getElementById('users');
+                usersDiv.innerHTML = '';
+                for (let i = 0; i < userList.length; i++) {
+                    usersDiv.innerHTML += `<div class="user-list">${userList[i]}<br /></div>`;
+                }
+                var messageDiv = document.getElementById('messages');
+                $('#messages').append('<h4>' + name + ' has left.</h4>');
+            })
+
             $('#submit-message').submit((event)=>{
                 event.preventDefault();
                 var newMessage = $('#new-message').val();
@@ -72,11 +79,9 @@
 
             socketio.on('messageToClient',(message)=> {
                 $('#messages').append(`<h4>${message}</h4>`)
+                console.log(message);
             })
 
-            // socketio.on('disconnected', (name)=> {
-            //     $('messages').append(`<h4>${name} has left the chat.</h4>`)
-            // })
         </script>
     </body>
 </html>
